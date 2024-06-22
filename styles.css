@@ -1,0 +1,36 @@
+body {
+    font-family: 'Roboto', sans-serif;
+}
+
+.container {
+    padding: 20px;
+}
+
+button {
+    margin: 10px 0;
+}
+
+#rich-text-editor {
+    border: 1px solid #ddd;
+    padding: 10px;
+    min-height: 200px;
+}
+
+.command-list {
+    margin-top: 20px;
+}
+
+.command-list table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.command-list th, .command-list td {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+.command-list th {
+    background-color: #f2f2f2;
+    text-align: left;
+}
