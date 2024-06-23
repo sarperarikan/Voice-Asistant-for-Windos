@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', (event) => {
     const tabs = document.querySelectorAll('.mdl-layout__tab');
     const panels = document.querySelectorAll('.mdl-layout__tab-panel');
+    let corrections = {};
 
     tabs.forEach((tab) => {
         tab.addEventListener('click', (e) => {
@@ -25,22 +26,29 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
     document.querySelector('.mdl-layout__tab.is-active').setAttribute('aria-current', 'page');
     loadKeyboardCommands();
+    loadCorrections();
+
+    document.getElementById('start-recognition').addEventListener('click', startRecognition);
+    document.getElementById('stop-recognition').addEventListener('click', stopRecognition);
+    document.getElementById('start-dictation').addEventListener('click', startDictation);
+    document.getElementById('stop-dictation').addEventListener('click', stopDictation);
 });
 
 function startRecognition() {
     if (annyang) {
         annyang.setLanguage('tr-TR');
-        annyang.start();
-        showDialog('Ses tanıma etkin.');
+        annyang.start({ continuous: true, autoRestart: true });
+        showDialog('Sürekli ses tanıma etkin.');
 
         annyang.addCallback('result', function(phrases) {
-            const command = phrases[0].toLowerCase();
+            const command = preprocessText(phrases[0].toLowerCase());
             document.getElementById('result').innerText = command;
             window.pywebview.api.send_result(command);
         });
 
         annyang.addCallback('end', function() {
-            showDialog('Ses tanıma sonlandı.');
+            showDialog('Ses tanıma sonlandı, yeniden başlatılıyor.');
+            annyang.start({ continuous: true, autoRestart: true });
         });
 
         annyang.addCallback('error', function() {
@@ -74,24 +82,33 @@ function startRecognition() {
 function stopRecognition() {
     if (annyang) {
         annyang.abort();
-        showDialog('Ses tanıma durduruldu.');
+        showDialog('Sürekli ses tanıma durduruldu.');
     } else {
         showDialog('Annyang desteklenmiyor.');
     }
 }
 
+function preprocessText(text) {
+    // Dinamik düzeltmeler
+    const words = text.split(' ');
+    const correctedWords = words.map(word => corrections[word] || word);
+    return correctedWords.join(' ');
+}
+
 function startDictation() {
     if (annyang) {
         annyang.setLanguage('tr-TR');
-        annyang.start();
-        showDialog('Sesli yazdırma etkin.');
+        annyang.start({ continuous: true, autoRestart: true });
+        showDialog('Sürekli sesli yazdırma etkin.');
 
         annyang.addCallback('result', function(phrases) {
-            document.getElementById('rich-text-editor').innerText += ' ' + phrases[0].toLowerCase();
+            const text = preprocessText(phrases[0].toLowerCase());
+            document.getElementById('rich-text-editor').innerText += ' ' + text;
         });
 
         annyang.addCallback('end', function() {
-            showDialog('Sesli yazdırma sonlandı.');
+            showDialog('Sesli yazdırma sonlandı, yeniden başlatılıyor.');
+            annyang.start({ continuous: true, autoRestart: true });
         });
 
         annyang.addCallback('error', function() {
@@ -125,7 +142,7 @@ function startDictation() {
 function stopDictation() {
     if (annyang) {
         annyang.abort();
-        showDialog('Sesli yazdırma durduruldu.');
+        showDialog('Sürekli sesli yazdırma durduruldu.');
     } else {
         showDialog('Annyang desteklenmiyor.');
     }
@@ -163,6 +180,17 @@ function loadKeyboardCommands() {
         })
         .catch(error => {
             console.error('Error fetching the keyboard commands:', error);
+        });
+}
+
+function loadCorrections() {
+    fetch('/keyboard.json')
+        .then(response => response.json())
+        .then(data => {
+            corrections = data;
+        })
+        .catch(error => {
+            console.error('Error loading corrections from keyboard.json:', error);
         });
 }
 
