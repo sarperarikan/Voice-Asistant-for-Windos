@@ -4,38 +4,69 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Voice Assistant for Windows</title>
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/material-design-lite/1.3.0/material.indigo-pink.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f5f5f5;
+        }
+        .container {
+            margin: 20px auto;
+            max-width: 900px;
+        }
+        .card {
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .card-header {
+            background-color: #3f51b5;
+            color: #fff;
+        }
+        .btn {
+            margin: 10px 0;
+        }
+        #rich-text-editor {
+            border: 1px solid #ddd;
+            padding: 10px;
+            min-height: 200px;
+            background-color: #fff;
+        }
+        @media (max-width: 600px) {
+            .nav-link {
+                width: 100%;
+                text-align: center;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div class="container mdl-layout mdl-js-layout mdl-layout--fixed-header mdl-layout--fixed-tabs" role="main">
-        <header class="mdl-layout__header" role="banner">
-            <div class="mdl-layout__header-row">
-                <span class="mdl-layout-title">Voice Assistant for Windows</span>
-            </div>
-            <div class="mdl-layout__tab-bar mdl-js-ripple-effect" role="tablist">
-                <a href="#computer-control" class="mdl-layout__tab is-active" role="tab" aria-selected="true" aria-controls="computer-control" id="computer-control-tab" accesskey="1">Bilgisayar Kontrolü</a>
-                <a href="#voice-pad" class="mdl-layout__tab" role="tab" aria-controls="voice-pad" id="voice-pad-tab" accesskey="2">Sesli Yazdırma</a>
-                <a href="#about" class="mdl-layout__tab" role="tab" aria-controls="about" id="about-tab" accesskey="3">Hakkında</a>
-            </div>
-        </header>
-        <main class="mdl-layout__content">
-            <section class="mdl-layout__tab-panel is-active" id="computer-control" role="tabpanel" aria-labelledby="computer-control-tab" aria-label="Bilgisayar Kontrolü">
-                <div class="page-content" role="region" aria-labelledby="computer-control-heading">
-                    <h1 id="computer-control-heading">Bilgisayar Kontrolü</h1>
-                    <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" onclick="startRecognition()" accesskey="k">
+    <div class="container">
+        <nav class="nav nav-pills nav-fill mb-3">
+            <a class="nav-item nav-link active" id="computer-control-tab" data-toggle="tab" href="#computer-control" role="tab" aria-controls="computer-control" aria-selected="true" accesskey="1">Bilgisayar Kontrolü</a>
+            <a class="nav-item nav-link" id="voice-pad-tab" data-toggle="tab" href="#voice-pad" role="tab" aria-controls="voice-pad" aria-selected="false" accesskey="2">Sesli Yazdırma</a>
+            <a class="nav-item nav-link" id="about-tab" data-toggle="tab" href="#about" role="tab" aria-controls="about" aria-selected="false" accesskey="3">Hakkında</a>
+        </nav>
+
+        <div class="tab-content">
+            <div class="tab-pane fade show active card" id="computer-control" role="tabpanel" aria-labelledby="computer-control-tab">
+                <div class="card-header">
+                    <h1>Bilgisayar Kontrolü</h1>
+                </div>
+                <div class="card-body">
+                    <button class="btn btn-primary" id="start-recognition" accesskey="k">
                         <i class="fas fa-microphone"></i> Ses Tanımayı Başlat
                     </button>
-                    <button hidden class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" onclick="stopRecognition()" accesskey="s">
+                    <button class="btn btn-secondary d-none" id="stop-recognition" accesskey="s">
                         <i class="fas fa-microphone-slash"></i> Ses Tanımayı Durdur
                     </button>
                     <h2>Algılanan Komut</h2>
                     <p id="result" role="alert" aria-live="assertive">Ses tanıma sonucu burada görünecek</p>
                     <details class="command-list">
                         <summary>Verilebilecek Komutlar</summary>
-                        <table id="command-details" role="table" aria-label="Verilebilecek Komutlar">
-                            <thead>
+                        <table id="command-details" class="table table-bordered" role="table" aria-label="Verilebilecek Komutlar">
+                            <thead class="thead-light">
                                 <tr>
                                     <th role="columnheader">Komut</th>
                                     <th role="columnheader">Kısayol</th>
@@ -47,39 +78,43 @@
                         </table>
                     </details>
                 </div>
-            </section>
-            <section class="mdl-layout__tab-panel" id="voice-pad" role="tabpanel" aria-labelledby="voice-pad-tab" aria-label="Sesli Yazdırma">
-                <div class="page-content" role="region" aria-labelledby="voice-pad-heading">
-                    <h1 id="voice-pad-heading">Sesli Yazdırma</h1>
-                    <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" onclick="startDictation()" accesskey="d">
+            </div>
+            <div class="tab-pane fade card" id="voice-pad" role="tabpanel" aria-labelledby="voice-pad-tab">
+                <div class="card-header">
+                    <h1>Sesli Yazdırma</h1>
+                </div>
+                <div class="card-body">
+                    <button class="btn btn-primary" id="start-dictation" accesskey="d">
                         <i class="fas fa-microphone"></i> Sesli Yazdırmayı Başlat
                     </button>
-                    <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" onclick="stopDictation()" accesskey="e">
+                    <button class="btn btn-secondary d-none" id="stop-dictation" accesskey="e">
                         <i class="fas fa-microphone-slash"></i> Sesli Yazdırmayı Durdur
                     </button>
-                    <div id="rich-text-editor" contenteditable="true" style="border: 1px solid #ddd; padding: 10px; min-height: 200px;">
+                    <div id="rich-text-editor" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Sesli yazdırma alanı">
                         Buraya yazdırın...
                     </div>
-                    <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" onclick="saveToWord()" accesskey="w">
+                    <button class="btn btn-success" onclick="saveToWord()" accesskey="w">
                         <i class="fas fa-save"></i> Word Belgesine Kaydet
                     </button>
-                    <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" onclick="copyToClipboard()" accesskey="c">
+                    <button class="btn btn-info" onclick="copyToClipboard()" accesskey="c">
                         <i class="fas fa-copy"></i> Panoya Kopyala
                     </button>
-                    <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent" onclick="searchOnGoogle()" accesskey="g">
+                    <button class="btn btn-danger" onclick="searchOnGoogle()" accesskey="g">
                         <i class="fas fa-search"></i> Google'da Ara
                     </button>
                 </div>
-            </section>
-            <section class="mdl-layout__tab-panel" id="about" role="tabpanel" aria-labelledby="about-tab" aria-label="Hakkında">
-                <div class="page-content" role="region" aria-labelledby="about-heading">
-                    <h1 id="about-heading">Hakkında</h1>
+            </div>
+            <div class="tab-pane fade card" id="about" role="tabpanel" aria-labelledby="about-tab">
+                <div class="card-header">
+                    <h1>Hakkında</h1>
+                </div>
+                <div class="card-body">
                     <p>
                         <ul>
                             <li>Geliştiren : <a href="mailto:sarperarikan@gmail.com">Sarper Arıkan</a></li>
                             <li>Web : <a href="https://sarperarikan.net">Kişisel Web Sitem</a></li>
                         </ul>
-                    </p>                    
+                    </p>
                     <p>Bu uygulama, sesli komutlar ile bilgisayarınızı kontrol etmenizi ve sesli yazdırma yapmanızı sağlar. Uygulamanın özellikleri:</p>
                     <ul>
                         <li>Sesli komutlarla Windows işlemlerini gerçekleştirme</li>
@@ -93,17 +128,22 @@
                         <li>SpeechRecognition API</li>
                     </ul>
                 </div>
-            </section>
-        </main>
-    </div>
-    <div id="dialog-container" class="dialog-container" role="alertdialog" aria-live="assertive">
-        <div class="dialog">
-            <p id="dialog-message">Mesaj</p>
-            <button class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--colored" onclick="closeDialog()">Tamam</button>
+            </div>
         </div>
     </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/material-design-lite/1.3.0/material.min.js"></script>
+
+    <div id="dialog-container" class="dialog-container" role="alertdialog" aria-live="assertive" aria-labelledby="dialog-message" aria-hidden="true">
+        <div class="dialog">
+            <p id="dialog-message">Mesaj</p>
+            <button class="btn btn-primary" onclick="closeDialog()">Tamam</button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/annyang/2.6.1/annyang.min.js"></script>
-    <script src="javascript.js"></script>
+    <script src="scripts.js">
+            </script>
 </body>
 </html>

@@ -9,7 +9,7 @@
     "sonraki": "tab",
     "önceki": "shift+tab",
     "kapat": "alt+f4",
-    "sonraki pencere": "alt+tab",
+    "pencere değiştir": "alt+tab",
     "görev çubuğu": "win+t",
     "ekran yansıt": "win+p",
     "erişilebilirlik": "win+u",
@@ -32,7 +32,7 @@
     "tümünü seç": "ctrl+a",
     "temizle": "delete",
     "sesle yazdır": "win+h",
-    "sonlandır": "esc",
+    "pencereyi kapat": "ctrl + w",
     "çalıştır": "win+r",
     "ekran görüntüsü al": "win+shift+s",
     "dosya gezginini aç": "win+e",
@@ -47,6 +47,7 @@
     "yenile": "ctrl+r",
     "geri git": "alt+left",
     "ileri git": "alt+right",
-"iptal":"esc",
-"bildirim alanına git":"windows + b"
+"kapat":"esc",
+"bildirim alanına git":"windows + b",
+"bilgisayarı kapat":"alt + f4"
 }
