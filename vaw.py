@@ -130,6 +130,8 @@ class CustomHTTPRequestHandler(SimpleHTTPRequestHandler):
             self._handle_save_to_word()
         elif self.path == '/execute_command':
             self._handle_execute_command()
+        elif self.path == '/add_command':
+            self._handle_add_command()
 
     def _handle_save_to_word(self):
         """Handle the save to word request."""
@@ -178,10 +180,36 @@ class CustomHTTPRequestHandler(SimpleHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(json.dumps(response).encode('utf-8'))
 
+    def _handle_add_command(self):
+        """Handle the add command request."""
+        content_length = int(self.headers['Content-Length'])
+        post_data = self.rfile.read(content_length)
+        data = json.loads(post_data)
+        command = data.get('command', '')
+        action = data.get('action', '')
+
+        response = {}
+        try:
+            commands = self.server.keyboard_commands.load_commands('keyboard.json')
+            commands[command] = action
+            with open('keyboard.json', 'w', encoding='utf-8') as file:
+                json.dump(commands, file, ensure_ascii=False, indent=4)
+            response['success'] = True
+            response['message'] = 'Komut başarıyla eklendi.'
+        except Exception as e:
+            logging.error(f"Error adding command: {str(e)}")
+            response['success'] = False
+            response['message'] = f'Komut eklenirken hata oluştu: {str(e)}'
+
+        self.send_response(200 if response['success'] else 500)
+        self.send_header('Content-type', 'application/json')
+        self.end_headers()
+        self.wfile.write(json.dumps(response).encode('utf-8'))
+
 def start_server():
     """Start the HTTP server."""
     web_dir = os.path.join(os.path.dirname(__file__), 'resources')
-    if os.path.exists(web_dir):
+    if (os.path.exists(web_dir)):
         os.chdir(web_dir)
     else:
         logging.error(f"Directory {web_dir} does not exist.")

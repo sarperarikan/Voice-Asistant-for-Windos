@@ -46,7 +46,9 @@
         <nav class="nav nav-pills nav-fill mb-3">
             <a class="nav-item nav-link active" id="computer-control-tab" data-toggle="tab" href="#computer-control" role="tab" aria-controls="computer-control" aria-selected="true" accesskey="1">Bilgisayar Kontrolü</a>
             <a class="nav-item nav-link" id="voice-pad-tab" data-toggle="tab" href="#voice-pad" role="tab" aria-controls="voice-pad" aria-selected="false" accesskey="2">Sesli Yazdırma</a>
-            <a class="nav-item nav-link" id="about-tab" data-toggle="tab" href="#about" role="tab" aria-controls="about" aria-selected="false" accesskey="3">Hakkında</a>
+            <a class="nav-item nav-link" id="assistant-tab" data-toggle="tab" href="#assistant" role="tab" aria-controls="assistant" aria-selected="false" accesskey="3">Asistan</a>
+            <a class="nav-item nav-link" id="command-management-tab" data-toggle="tab" href="#command-management" role="tab" aria-controls="command-management" aria-selected="false" accesskey="4">Komut Yönetimi</a>
+            <a class="nav-item nav-link" id="about-tab" data-toggle="tab" href="#about" role="tab" aria-controls="about" aria-selected="false" accesskey="5">Hakkında</a>
         </nav>
 
         <div class="tab-content">
@@ -104,6 +106,49 @@
                     </button>
                 </div>
             </div>
+            <div class="tab-pane fade card" id="assistant" role="tabpanel" aria-labelledby="assistant-tab">
+                <div class="card-header">
+                    <h1>Asistan</h1>
+                </div>
+                <div class="card-body">
+                    <p>Açık kaynak olarak sunulan asistan uygulaması open-webui arayüzüyle sunulmaktadır. Lütfen bu sistem için belirli sınırlamalarla sunulan dil modeline erişimin belirli bir sürede cevap verebileceğini unutmayınız.</p>
+                    <button class="btn btn-primary" id="open-assistant" accesskey="a">
+                        <i class="fas fa-robot"></i> Asistanı Aç
+                    </button>
+                </div>
+            </div>
+            <div class="tab-pane fade card" id="command-management" role="tabpanel" aria-labelledby="command-management-tab">
+                <div class="card-header">
+                    <h1>Komut Yönetimi</h1>
+                </div>
+                <div class="card-body">
+                    <form id="add-command-form">
+                        <div class="form-group">
+                            <label for="command-name">Komut Adı</label>
+                            <input type="text" class="form-control" id="command-name" aria-describedby="commandNameHelp" placeholder="Komut adını girin">
+                            <small id="commandNameHelp" class="form-text text-muted">Yeni komut adını girin.</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="command-action">Komut Aksiyonu</label>
+                            <input type="text" class="form-control" id="command-action" aria-describedby="commandActionHelp" placeholder="Komut aksiyonunu girin">
+                            <small id="commandActionHelp" class="form-text text-muted">Komut aksiyonunu girin.</small>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Komut Ekle</button>
+                    </form>
+                    <h2>Mevcut Komutlar</h2>
+                    <table id="command-management-details" class="table table-bordered" role="table" aria-label="Mevcut Komutlar">
+                        <thead class="thead-light">
+                            <tr>
+                                <th role="columnheader">Komut</th>
+                                <th role="columnheader">Aksiyon</th>
+                            </tr>
+                        </thead>
+                        <tbody id="command-management-tbody">
+                            <!-- Mevcut komutlar burada görünecek -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
             <div class="tab-pane fade card" id="about" role="tabpanel" aria-labelledby="about-tab">
                 <div class="card-header">
                     <h1>Hakkında</h1>
@@ -111,8 +156,8 @@
                 <div class="card-body">
                     <p>
                         <ul>
-                            <li>Geliştiren : <a href="mailto:sarperarikan@gmail.com">Sarper Arıkan</a></li>
-                            <li>Web : <a href="https://sarperarikan.net">Kişisel Web Sitem</a></li>
+                            <li>Geliştiren: <a href="mailto:sarperarikan@gmail.com">Sarper Arıkan</a></li>
+                            <li>Web: <a href="https://sarperarikan.net">Kişisel Web Sitem</a></li>
                         </ul>
                     </p>
                     <p>Bu uygulama, sesli komutlar ile bilgisayarınızı kontrol etmenizi ve sesli yazdırma yapmanızı sağlar. Uygulamanın özellikleri:</p>
@@ -143,7 +188,66 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/annyang/2.6.1/annyang.min.js"></script>
-    <script src="scripts.js">
-            </script>
+    <script src="scripts.js"></script>
+    <script>
+        // Komut ekleme ve yönetimi için gerekli fonksiyonlar
+        document.getElementById('add-command-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const commandName = document.getElementById('command-name').value;
+            const commandAction = document.getElementById('command-action').value;
+            addNewCommand(commandName, commandAction);
+        });
+
+        function addNewCommand(commandName, commandAction) {
+            fetch('/add_command', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ command: commandName, action: commandAction })
+            })
+            .then(response => response.json())
+            .then(data => {
+                showAlert(data.message);
+                if (data.success) {
+                    loadCommands(); // Mevcut komutları yeniden yükle
+                    loadManagementCommands(); // Yönetim sekmesindeki komutları da güncelle
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showAlert('Komut eklenirken bir hata oluştu.');
+            });
+        }
+
+        function loadManagementCommands() {
+            fetch('/keyboard.json')
+                .then(response => response.json())
+                .then(commands => {
+                    const tbody = document.getElementById('command-management-tbody');
+                    tbody.innerHTML = '';
+                    for (const command in commands) {
+                        const tr = document.createElement('tr');
+                        const tdCommand = document.createElement('td');
+                        tdCommand.textContent = command;
+                        const tdShortcut = document.createElement('td');
+                        tdShortcut.textContent = commands[command];
+                        tr.appendChild(tdCommand);
+                        tr.appendChild(tdShortcut);
+                        tbody.appendChild(tr);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading commands:', error);
+                });
+        }
+
+        // Asistan sekmesi için yeni sayfa açma fonksiyonu
+        function openAssistant() {
+            window.open('http://5.180.81.179:3000', '_blank');
+        }
+
+        document.getElementById('open-assistant').addEventListener('click', openAssistant);
+    </script>
 </body>
 </html>
